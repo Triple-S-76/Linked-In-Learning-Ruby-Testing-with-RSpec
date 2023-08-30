@@ -17,7 +17,8 @@ describe Guide do
   describe '#intialize' do
     
     it 'calls Restaurant#load_file with its path argument' do
-      skip('Needs expectation')
+      # skip('Needs expectation')
+      expect(Restaurant).to receive(:load_file).with(test_file)
       Guide.new(test_file)
       # expect ...
     end
@@ -27,9 +28,10 @@ describe Guide do
   describe '#launch!' do
     
     it 'outputs a introductory message' do
-      skip('Needs expectation')
+      # skip('Needs expectation')
       setup_fake_input('quit')
       # expect ...
+      expect { subject.launch! }.to output(/Welcome/).to_stdout
     end
     
   end
@@ -39,9 +41,12 @@ describe Guide do
     context 'with invalid action' do
       
       it 'outputs list of valid actions' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('invalid action', 'quit')
         # expect ...
+        expect do
+          subject.launch!
+        end.to output(/Action not recognized./).to_stdout
       end
       
     end
@@ -49,9 +54,10 @@ describe Guide do
     context 'with quit action' do
       
       it 'outputs concluding message and exits' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('quit')
         # expect ...
+        expect { subject.launch! }.to output(/Goodbye/).to_stdout
       end
       
     end
@@ -72,13 +78,14 @@ describe Guide do
       end
       
       it 'outputs a message if no listings are found' do
-        skip("Needs expectation")
+        # skip("Needs expectation")
         setup_fake_input('list', 'quit')
         output = capture_output { blank_guide.launch! }
         lines = output.split("\n")
         expect(lines[10]).to match(/^\sName\s{27}Cuisine\s{15}Price$/)
         expect(lines[11]).to eq("-" * 60)
         # expect(lines[12]).to ...
+        expect(lines[12]).to eq('No listings found')
         expect(lines[13]).to eq("-" * 60)
         
         # clean up
@@ -86,7 +93,7 @@ describe Guide do
       end
       
       it 'sorts alphabetically by default' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('list', 'quit')
         output = capture_output { subject.launch! }
         lines = output.split("\n")
@@ -95,10 +102,11 @@ describe Guide do
         # Build array with the first characters
         first_chars = names.map {|l| l[0] }
         # expect(first_chars).to ...
+        expect(first_chars).to eq(['C', 'H', 'M', 'P', 'Q', 'T'])
       end
       
       it 'sorts alphabetically with an invalid sort by' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('list invalid', 'quit')
         output = capture_output { subject.launch! }
         lines = output.split("\n")
@@ -107,10 +115,11 @@ describe Guide do
         # Build array with the first characters
         first_chars = names.map {|l| l[0] }
         # expect(first_chars).to ...
+        expect(first_chars).to eq(['C', 'H', 'M', 'P', 'Q', 'T'])
       end
 
       it 'sorts by price when asked' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('list price', 'quit')
         output = capture_output { subject.launch! }
         lines = output.split("\n")
@@ -122,10 +131,11 @@ describe Guide do
           price = (d.to_i * 100) + c.to_i
         end
         # expect(prices).to ...
+        expect(prices).to eq([500, 1000, 1000, 2500, 3000, 3500])
       end
 
       it 'sorts by cuisine when asked' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('list cuisine', 'quit')
         output = capture_output { subject.launch! }
         lines = output.split("\n")
@@ -141,36 +151,40 @@ describe Guide do
     context 'with find action' do
       
       it 'outputs instructions if no arguments given' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('find', 'quit')
         output = capture_output { subject.launch! }
+        lines = output.split("\n")
         # expect(output).to ...
+        expect(lines[11]).to include('find tamale' && 'find Mexican' && 'find mex')
       end
       
       it 'finds restaurants with matching name keyword' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('find cafe', 'quit')
         output = capture_output { subject.launch! }
         
         lines = output.split("\n")
         expect(lines[11]).to eq("-" * 60)
         # expect(lines[12]).to ...
+        expect(lines[12]).to include('Masala')
         expect(lines[13]).to eq("-" * 60)
       end
 
       it 'finds restaurants with matching cuisine keyword' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('find mexican', 'quit')
         output = capture_output { subject.launch! }
         
         lines = output.split("\n")
         expect(lines[11]).to eq("-" * 60)
         # expect(lines[12]).to ...
+        expect(lines[12]).to include('Hot Tamale')
         expect(lines[13]).to eq("-" * 60)
       end
       
       it 'finds restaurants with prices less than keyword' do
-        skip('Needs expectation')
+        # skip('Needs expectation')
         setup_fake_input('find 10', 'quit')
         output = capture_output { subject.launch! }
         
@@ -179,6 +193,9 @@ describe Guide do
         # expect(lines[12]).to ...
         # expect(lines[13]).to ...
         # expect(lines[14]).to ...
+        expect(lines[12]).to include('Pita Pocket')
+        expect(lines[13]).to include('Quick Cup')
+        expect(lines[14]).to include('Taste Of Little Italy')
         expect(lines[15]).to eq("-" * 60)
       end
 
@@ -207,12 +224,16 @@ describe Guide do
         # expect(output).to match(...)
         # expect(output).to match(...)
         # expect(output).to match(...)
+        expect(output).to match(/Restaurant name:/)
+        expect(output).to match(/Cuisine type:/)
+        expect(output).to match(/Average price:/)
       end
 
       it 'sends question answers to Restaurant.new' do
-        skip("Needs expectation")
-        subject.launch!
+        # skip("Needs expectation")
+        no_output { subject.launch! }
         # expect(Restaurant).to ...
+        expect(Restaurant).to have_received(:new).with(:name => 'Chelsea Diner', :cuisine => 'American', :price => '20')
       end
 
     end
